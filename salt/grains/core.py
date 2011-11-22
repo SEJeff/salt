@@ -14,6 +14,7 @@ as those returned here
 # Import python modules
 
 import os
+import re
 import socket
 import subprocess
 
@@ -182,12 +183,14 @@ def os_data():
             grains['os'] = 'Debian'
         elif os.path.isfile('/etc/gentoo-version'):
             grains['os'] = 'Gentoo'
-        elif os.path.isfile('/etc/fedora-version'):
+        elif os.path.isfile('/etc/fedora-release'):
             grains['os'] = 'Fedora'
         elif os.path.isfile('/etc/mandriva-version'):
             grains['os'] = 'Mandriva'
         elif os.path.isfile('/etc/mandrake-version'):
             grains['os'] = 'Mandrake'
+        elif os.path.isfile('/etc/mageia-release'):
+            grains['os'] = 'Mageia'
         elif os.path.isfile('/etc/meego-version'):
             grains['os'] = 'MeeGo'
         elif os.path.isfile('/etc/vmware-version'):
@@ -221,6 +224,19 @@ def os_data():
                 grains['os'] = 'openSUSE'
             else:
                 grains['os'] = 'SUSE'
+        elif os.path.isfile('/etc/lsb-release'):
+            for line in open('/etc/lsb-release').readlines():
+                # Matches any possible format:
+                #     DISTRIB_ID=Ubuntu
+                #     DISTRIB_ID="Mageia"
+                #     DISTRIB_ID='SomeDistro'
+                match = re.match('^DISTRIB_ID=(?:\'|")?(\w+)(?:\'|")?', line)
+                if match:
+                    grains['os'] = match.groups()[0]
+                    break
+            # If there is no DISTRIB_ID= line in the lsb-release
+            if not 'os' in grains:
+                grains['os'] = 'Unknown {0}'.format(grains['kernel'])
     elif grains['kernel'] == 'sunos':
         grains['os'] = 'Solaris'
     elif grains['kernel'] == 'VMkernel':
