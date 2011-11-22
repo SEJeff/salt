@@ -239,6 +239,8 @@ def os_data():
                 grains['os'] = 'Unknown {0}'.format(grains['kernel'])
     elif grains['kernel'] == 'sunos':
         grains['os'] = 'Solaris'
+    elif grains['kernel'] == 'OpenBSD':
+        grains['os'] = grains['kernel']
     elif grains['kernel'] == 'VMkernel':
         grains['os'] = 'ESXi'
     elif grains['kernel'] == 'Darwin':
